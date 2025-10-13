@@ -2,11 +2,17 @@
 import Link from "next/link";
 
 export default function Logo() {
-
-    return (
-        <Link href="/">
-            <img src="/logo.png" alt="Logo" style={{height:90, marginBottom:10}}/>
-        </Link>
-    )
-
+  return (
+    <Link href="/" className="d-inline-block text-center">
+      <img
+        src="/logo.png"
+        alt="Logo"
+        style={{
+          maxWidth: "100%",
+          height: "auto",
+          maxHeight: "90px",
+        }}
+      />
+    </Link>
+  );
 }
