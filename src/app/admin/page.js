@@ -7,6 +7,8 @@ import * as XLSX from "xlsx";
 import Logo from "../components/Logo";
 export default function AdminPage() {
   const [inscritos, setInscritos] = useState({});
+  const [temas, setTemas] = useState({});
+  const [salas, setSalas] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,15 +27,48 @@ export default function AdminPage() {
       }
     }
 
+    async function carregarTemas() {
+      try {
+        const snapshot = await get(ref(db, "temas"));
+        if (snapshot.exists()) {
+          setTemas(snapshot.val());
+        } else {
+          setTemas({});
+        }
+      } catch (error) {
+        console.error("Erro ao carregar temas:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function carregarSalas() {
+      try {
+        const snapshot = await get(ref(db, "salas"));
+        if (snapshot.exists()) {
+          setSalas(snapshot.val());
+        } else {
+          setSalas({});
+        }
+      } catch (error) {
+        console.error("Erro ao carregar salas:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     carregarInscritos();
+    carregarTemas();
+    carregarSalas();
+    
   }, []);
 
-  // Agrupa por tema
-  const agrupadosPorTema = {};
+  // Agrupa por sala
+  const agrupadosPorSala = {};
   Object.values(inscritos).forEach((pessoa) => {
     pessoa.cursos.forEach((curso) => {
-      if (!agrupadosPorTema[curso]) agrupadosPorTema[curso] = [];
-      agrupadosPorTema[curso].push(pessoa);
+      if (!agrupadosPorSala[curso]) agrupadosPorSala[curso] = [];
+      agrupadosPorSala[curso].push(pessoa);
     });
   });
 
@@ -41,12 +76,12 @@ export default function AdminPage() {
   const exportarExcel = () => {
     const planilhas = [];
 
-    Object.entries(agrupadosPorTema).forEach(([tema, pessoas]) => {
+    Object.entries(agrupadosPorSala).forEach(([sala, pessoas]) => {
       const linhas = pessoas.map((p) => ({
         Nome: p.nome,
         Escola: p.escola,
         Email: p.email,
-        Curso: tema,
+        Curso: sala,
         Data: new Date(p.data).toLocaleString("pt-BR"),
       }));
       planilhas.push(...linhas);
@@ -100,11 +135,21 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {Object.entries(agrupadosPorTema).map(([tema, pessoas]) => (
-        <div key={tema} className="mb-5">
+      {Object.entries(agrupadosPorSala).map(([sala, pessoas]) => (
+        <div key={sala} className="mb-5">
           <h4 className="bg-light p-2 border-start border-4 border-primary">
-            {tema} ({pessoas.length})
+            {salas[sala]?.nome} - ({pessoas.length})
           </h4>
+          
+          {salas[sala]?.temas && Object.entries(salas[sala]?.temas).map(([tema]) => (
+              <p className="card-subtitle mb-2">
+                <b>Tema:</b> <i>{temas[tema]?.nome}</i>
+                <br/>
+                <small className="text-muted mb-2">
+                  Palestrante: {temas[tema]?.palestrante}
+                </small>
+              </p>
+          ))}
           <div className="table-responsive">
             <table className="table table-striped table-bordered align-middle">
               <thead className="table-primary">

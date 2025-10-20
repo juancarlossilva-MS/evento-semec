@@ -5,15 +5,24 @@ import Link from "next/link";
 import { db, ref, get, update,set  } from "../../../lib/firebase";
 import Logo from "../../components/Logo";
 export default function QRCodesPage() {
+  const [salas, setSalas] = useState({});
   const [temas, setTemas] = useState({});
 
   useEffect(() => {
+    async function carregarSalas() {
+      const snapshot = await get(ref(db, "salas"));
+      if (snapshot.exists()) {
+        setSalas(snapshot.val());
+      }
+    }
     async function carregarTemas() {
       const snapshot = await get(ref(db, "temas"));
       if (snapshot.exists()) {
         setTemas(snapshot.val());
       }
     }
+    
+    carregarSalas();
     carregarTemas();
   }, []);
 
@@ -22,19 +31,30 @@ export default function QRCodesPage() {
       <div className="text-center mb-4">
         <Logo />
 
-        <h1 className="fw-bold text-primary">Lista de Temas</h1>
+        <h1 className="fw-bold text-primary">Lista de Salas</h1>
         <p className="text-muted">Clique em “Ver QRCode” para abrir o código individualmente.</p>
       </div>
 
       <div className="row g-4">
-        {Object.entries(temas).map(([id, tema]) => (
+        {Object.entries(salas).map(([id, sala]) => (
           <div className="col-md-6" key={id}>
             <div className="card shadow-sm h-100">
               <div className="card-body d-flex flex-column justify-content-between">
                 <div>
-                  <h5 className="fw-bold">{tema.nome}</h5>
+                  <h5 className="fw-bold">{sala.nome}</h5>
+
+                  {sala.temas && Object.entries(sala.temas).map(([tema]) => (
+                      <p className="card-subtitle mb-2">
+                        <b>Tema:</b> <i>{temas[tema]?.nome}</i>
+                        <br/>
+                        <small className="text-muted mb-2">
+                          Palestrante: {temas[tema]?.palestrante}
+                        </small>
+                      </p>
+                  ))}
+
                   <p className="text-muted mb-2">
-                    Inscritos: <strong>{tema.inscritos || 0}</strong> / 50
+                    Inscritos: <strong>{sala.inscritos || 0}</strong> / {sala.maximo || 70}
                   </p>
                 </div>
                 <Link href={`/admin/qrcode/${id}`} className="btn btn-primary mt-auto">

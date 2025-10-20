@@ -5,6 +5,7 @@ import { db, ref, get, update,set  } from "../lib/firebase";
 import Logo from "./components/Logo";
 
 export default function InscricaoPage() {
+  const [salas, setSalas] = useState({});
   const [temas, setTemas] = useState({});
   const [selecionados, setSelecionados] = useState([]);
   const [nome, setNome] = useState("");
@@ -13,7 +14,7 @@ export default function InscricaoPage() {
   const [mensagem, setMensagem] = useState("");
   const [toastVisivel, setToastVisivel] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [qtdTemas, setQtdTemas] = useState(0);
+  const [qtdSalas, setQtdSalas] = useState(0);
 
   // Exibir mensagem tipo popup (toast)
   const mostrarMensagem = (msg, tempo = 3000) => {
@@ -22,32 +23,55 @@ export default function InscricaoPage() {
     setTimeout(() => setToastVisivel(false), tempo);
   };
 
-  // Carregar temas do Firebase
+  // Carregar salas do Firebase
+  useEffect(() => {
+    async function carregarSalas() {
+      const snapshot = await get(ref(db, "salas"));
+      if (snapshot.exists()) {
+        setSalas(snapshot.val());
+      } else {
+        console.warn("Nenhum sala encontrado.");
+      }
+    }
+    carregarSalas();
+  }, [qtdSalas]);
+
+
+  // Carregar salas do Firebase
   useEffect(() => {
     async function carregarTemas() {
       const snapshot = await get(ref(db, "temas"));
       if (snapshot.exists()) {
         setTemas(snapshot.val());
       } else {
-        console.warn("Nenhum tema encontrado.");
+        console.warn("Nenhum sala encontrado.");
       }
     }
     carregarTemas();
-  }, [qtdTemas]);
+  }, []);
 
-  // Lógica para selecionar/deselecionar temas (até 3)
-  const toggleTema = (temaId) => {
-    if (selecionados.includes(temaId)) {
-      setSelecionados(selecionados.filter((t) => t !== temaId));
-    } else if (selecionados.length < 3) {
-      const total = temas[temaId]?.inscritos || 0;
-      if (total < 50) {
-        setSelecionados([...selecionados, temaId]);
+  // Lógica para selecionar/deselecionar salas (até 3)
+  const toggleSala = (salaId) => {
+    if (selecionados.includes(salaId)) {
+      setSelecionados(selecionados.filter((t) => t !== salaId));
+    } else if (selecionados.length < 2) {
+
+      if (selecionados.length == 1) {
+        const selId = selecionados[0];
+        if (salas[salaId]?.periodo == salas[selId]?.periodo){
+          mostrarMensagem("Você só pode escolher uma sala por periodo!");
+          return;
+        }
+      }
+      const total = salas[salaId]?.inscritos || 0;
+      const maximo = salas[salaId]?.maximo || 70;
+      if (total < maximo) {
+        setSelecionados([...selecionados, salaId]);
       } else {
-        mostrarMensagem("Esse tema já está lotado!");
+        mostrarMensagem("Esse sala já está lotado!");
       }
     } else {
-      mostrarMensagem("Você só pode escolher até 3 temas.");
+      mostrarMensagem("Você só pode escolher até 2 salas!");
     }
   };
 
@@ -58,7 +82,7 @@ export default function InscricaoPage() {
       return;
     }
     if (selecionados.length === 0) {
-      mostrarMensagem("Escolha pelo menos 1 tema!");
+      mostrarMensagem("Escolha pelo menos 1 sala!");
       return;
     }
 
@@ -75,12 +99,12 @@ export default function InscricaoPage() {
         data: new Date().toISOString()
       });
 
-      // Atualizar contador de inscritos em cada tema
-      for (const temaId of selecionados) {
-        const temaRef = ref(db, `temas/${temaId}/inscritos`);
-        const snapshot = await get(temaRef);
+      // Atualizar contador de inscritos em cada sala
+      for (const salaId of selecionados) {
+        const salaRef = ref(db, `salas/${salaId}/inscritos`);
+        const snapshot = await get(salaRef);
         const total = snapshot.exists() ? snapshot.val() + 1 : 1;
-        await update(ref(db, `temas/${temaId}`), { inscritos: total });
+        await update(ref(db, `salas/${salaId}`), { inscritos: total });
       }
 
       mostrarMensagem("✅ Inscrição realizada com sucesso!", 4000);
@@ -88,7 +112,7 @@ export default function InscricaoPage() {
       setEmail("");
       setEscola("");
       setSelecionados([]);
-      setQtdTemas(qtdTemas+1);
+      setQtdSalas(qtdSalas+1);
     } catch (err) {
       console.error(err);
       mostrarMensagem("Erro ao enviar inscrição. Tente novamente.", 4000);
@@ -103,7 +127,7 @@ export default function InscricaoPage() {
       <div className="text-center mb-4">
         <Logo />
         <h1 className="fw-bold text-primary">Formulário de Inscrição</h1>
-        <p className="text-muted">Escolha até <strong>3 temas</strong> disponíveis abaixo.</p>
+        <p className="text-muted">Escolha <strong>2 salas</strong> disponíveis abaixo.</p>
       </div>
 
       {/* Toast popup */}
@@ -152,44 +176,139 @@ export default function InscricaoPage() {
           />
         </div>
 
-        {/* Lista de temas */}
-        <h5 className="mb-3">Temas disponíveis</h5>
+       {/* Lista de salas */}
+        <h5 className="mb-3">Salas disponíveis</h5>
         <div className="row g-3">
-          {Object.entries(temas).map(([id, tema]) => {
-            const total = tema.inscritos || 0;
-            const isSelecionado = selecionados.includes(id);
-            const isLotado = total >= 50;
-            return (
-              <div className="col-md-6" key={id}>
-                <div className="card h-100 border shadow-sm">
-                  <div className="card-body d-flex flex-column justify-content-between">
-                    <h6 className="card-title fw-bold">{tema.nome}</h6>
-                    <p className="text-muted mb-2">
-                      Inscritos: {total} / 50
-                    </p>
-                    <button
-                      className={`btn ${
-                        isSelecionado
-                          ? "btn-success"
-                          : isLotado
-                          ? "btn-danger"
-                          : "btn-primary"
-                      }`}
-                      disabled={isLotado}
-                      onClick={() => toggleTema(id)}
-                    >
-                      {isSelecionado
-                        ? "Selecionado"
-                        : isLotado
-                        ? "Lotado"
-                        : "Escolher"}
-                    </button>
-                  </div>
-                </div>
+          {/* Coluna MATUTINO */}
+          <div className="col-md-6 d-flex flex-column gap-2">
+            <h5 className="mb-3">Matutino</h5>
+            <div className="row row-cols-1 g-3 align-items-stretch">
+              {Object.entries(salas).map(([id, sala]) => {
+                const total = sala.inscritos || 0;
+                const isSelecionado = selecionados.includes(id);
+                const isLotado = total >= 50;
+                const temasDaSala = sala.temas;
+
+                if (sala.periodo == "vespertino") return null;
+
+                return (
+                  <div className="col d-flex" key={id}>
+                    <div className="card flex-fill border shadow-sm" >
+                      <div className="card-body d-flex flex-column justify-content-between" style={{ minHeight: "55vh" }} >
+                        <h6 className="card-title fw-bold">{sala.nome}</h6>
+                            {
+                              Object.entries(temas).map(([id, tema]) => {
+                                if (id == temasDaSala.tema1 || id == temasDaSala.tema2){
+                                  return (
+                                      <>
+                                        
+                                        <p className="card-subtitle mb-2">
+                                          <b>Tema:</b> <i>{tema.nome}</i>
+                                          <br/>
+                                          <small className="text-muted mb-2">
+                                            Palestrante: {tema.palestrante}
+                                          </small>
+                                        </p>
+                                      </>
+                                    )
+                                }
+                              })
+
+                            }
+                          <button
+                            className={`btn ${
+                              isSelecionado
+                                ? "btn-success"
+                                : isLotado
+                                ? "btn-danger"
+                                : "btn-primary"
+                            }`}
+                            disabled={isLotado}
+                            onClick={() => toggleSala(id)}
+                          >
+                            {isSelecionado
+                              ? "Selecionado"
+                              : isLotado
+                              ? "Lotado"
+                              : "Escolher"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
               </div>
-            );
-          })}
+            </div>
+
+
+          {/* Coluna VESPERTINO */}
+          <div className="col-md-6 d-flex flex-column gap-2">
+            <h5 className="mb-3">Vespertino</h5>
+            <div className="row row-cols-1 g-3 align-items-stretch">
+              {Object.entries(salas).map(([id, sala]) => {
+                const total = sala.inscritos || 0;
+                const isSelecionado = selecionados.includes(id);
+                const isLotado = total >= 50;
+                const temasDaSala = sala.temas;
+
+                if (sala.periodo == "matutino") return null;
+
+                return (
+                  <div className="col d-flex" key={id}>
+                    <div className="card flex-fill border shadow-sm">
+                      <div className="card-body d-flex flex-column justify-content-between" style={{ minHeight: "55vh" }} >
+                        <h6 className="card-title fw-bold">{sala.nome}</h6>
+                          {
+                              Object.entries(temas).map(([id, tema]) => {
+                                if (id == temasDaSala.tema1 || id == temasDaSala.tema2){
+                                  return (
+                                      <>
+                                        
+                                        <p className="card-subtitle mb-2">
+                                          <b>Tema:</b> <i>{tema.nome}</i>
+                                          <br/>
+                                          <small className="text-muted mb-2">
+                                            Palestrante: {tema.palestrante}
+                                          </small>
+                                        </p>
+                                      </>
+                                    )
+                                }
+                              })
+
+                            }
+                          <button
+                            className={`btn ${
+                              isSelecionado
+                                ? "btn-success"
+                                : isLotado
+                                ? "btn-danger"
+                                : "btn-primary"
+                            }`}
+                            disabled={isLotado}
+                            onClick={() => toggleSala(id)}
+                          >
+                            {isSelecionado
+                              ? "Selecionado"
+                              : isLotado
+                              ? "Lotado"
+                              : "Escolher"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+              </div>
+            </div>
+
+                    
         </div>
+
+      
+
 
         <div className="d-grid mt-4">
           <button
@@ -204,7 +323,7 @@ export default function InscricaoPage() {
 
       <footer className="text-center mt-5 text-muted">
         <hr />
-        <small>© {new Date().getFullYear()} - Sistema de Inscrições do Evento</small>
+        <small>© {new Date().getFullYear()} - Sissala de Inscrições do Evento</small>
       </footer>
     </div>
   );

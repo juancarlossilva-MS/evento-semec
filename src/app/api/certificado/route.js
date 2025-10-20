@@ -5,18 +5,27 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export async function POST(req) {
   try {
-    const { nome } = await req.json();
+    const { nome, periodo } = await req.json();
 
-    if (!nome) {
+    if (!nome || !periodo) {
       return NextResponse.json(
-        { error: "O nome do participante é obrigatório." },
+        { error: "O nome e o periodo do participante é obrigatório." },
+        { status: 400 }
+      );
+    }
+    let pdfPath = "";
+    if (periodo == 'matutino'){
+      pdfPath = join(process.cwd(), "public", "certificado-matutino.pdf");
+    }else if (periodo == 'vespertino'){
+      pdfPath = join(process.cwd(), "public", "certificado-vespertino.pdf");
+    }else{
+      return NextResponse.json(
+        { error: "Periodo inválido." },
         { status: 400 }
       );
     }
 
-
     // Caminho do certificado base
-    const pdfPath = join(process.cwd(), "public", "certificado-base.pdf");
     const pdfBase = await readFile(pdfPath);
 
     // Carrega o PDF

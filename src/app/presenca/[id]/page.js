@@ -6,7 +6,8 @@ import Logo from "../../components/Logo";
 
 export default function PresencaPage() {
   const { id } = useParams();
-  const [cursoNome, setCursoNome] = useState('');
+  const [cursoNome, setCursoNome] = useState(null);
+  const [periodo, setPeriodo] = useState(null);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [mensagem, setMensagem] = useState('');
@@ -18,11 +19,11 @@ export default function PresencaPage() {
   useEffect(()=>{
     async function carregar(){ 
       try {
-        const snap = await get(ref(db, `temas/${id}`));
+        const snap = await get(ref(db, `salas/${id}`));
         if (snap.exists()) {
           const val = snap.val();
-          if (typeof val === 'object' && val.nome) setCursoNome(val.nome);
-          else setCursoNome(id);
+          setCursoNome(val.nome);
+          setPeriodo(val.periodo);
         } else setCursoNome("Curso não encontrado");
       } catch(e) { console.error(e); setCursoNome("Erro ao carregar curso"); }
     }
@@ -38,18 +39,20 @@ export default function PresencaPage() {
       if (!userSnap.exists()) { mostrarMensagem("Email não cadastrado!",3000); return; }
       await update(userRef, { [`presenca_${id}`]: true });
       mostrarMensagem("Presença registrada!",2000);
-      gerarCertificado(nome, cursoNome);
+      gerarCertificado(nome, periodo);
     } catch(e) { console.error(e); mostrarMensagem("Erro ao registrar presença",4000); }
   };
 
-  const gerarCertificado = async (nome, curso) => {
+  const gerarCertificado = async (nome, periodo) => {
+    
     setGerando(true);
+
     try {
      
        const resp = await fetch("/api/certificado", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome: nome }),
+        body: JSON.stringify({ nome: nome, periodo:periodo }),
       });
 
       const blob = await resp.blob();
@@ -82,7 +85,7 @@ export default function PresencaPage() {
         <div className="d-grid"><button className="btn btn-success" onClick={registrarPresenca} disabled={gerando}>{gerando? 'Gerando certificado...':'Registrar Presença'}</button></div>
       </div>
 
-      <footer className="text-center mt-5 text-muted"><hr/><small>© {new Date().getFullYear()} - Sistema</small></footer>
+      <footer className="text-center mt-5 text-muted"><hr/><small>© {new Date().getFullYear()} - Sissala</small></footer>
     </div>
   );
 }

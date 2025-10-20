@@ -9,7 +9,7 @@ import Logo from "../../../components/Logo";
 
 export default function QrCodeIndividual() {
   const { id } = useParams();
-  const [tema, setTema] = useState(null);
+  const [sala, setSala] = useState(null);
   const [baseUrl, setBaseUrl] = useState("");
 
   useEffect(() => {
@@ -17,20 +17,20 @@ export default function QrCodeIndividual() {
       setBaseUrl(window.location.origin);
     }
 
-    async function carregarTema() {
-      const snapshot = await get(ref(db, `temas/${id}`));
+    async function carregarSala() {
+      const snapshot = await get(ref(db, `salas/${id}`));
       if (snapshot.exists()) {
-        setTema(snapshot.val());
+        setSala(snapshot.val());
       }
     }
 
-    carregarTema();
+    carregarSala();
   }, [id]);
 
-  if (!tema) {
+  if (!sala) {
     return (
       <div className="container text-center py-5">
-        <h5>Carregando tema...</h5>
+        <h5>Carregando sala...</h5>
       </div>
     );
   }
@@ -41,7 +41,7 @@ export default function QrCodeIndividual() {
     <div className="d-flex flex-column align-items-center justify-content-center vh-100 bg-light">
       <Logo
       />
-      <h2 className="fw-bold text-primary text-center mb-3">{tema.nome}</h2>
+      <h2 className="fw-bold text-primary text-center mb-3">{sala.nome}</h2>
       <div className="p-4 bg-white rounded shadow">
         <QRCodeCanvas value={linkPresenca} size={300} />
       </div>
@@ -56,7 +56,7 @@ export default function QrCodeIndividual() {
 
       <footer className="text-center mt-5 text-muted position-absolute bottom-0 w-100">
         <hr />
-        <small>© {new Date().getFullYear()} - Sistema de Presença</small>
+        <small>© {new Date().getFullYear()} - Sissala de Presença</small>
       </footer>
     </div>
   );
