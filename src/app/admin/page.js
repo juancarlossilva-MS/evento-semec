@@ -141,7 +141,7 @@ export default function AdminPage() {
             {salas[sala]?.nome} - ({pessoas.length})
           </h4>
           
-          {salas[sala]?.temas && Object.entries(salas[sala]?.temas).map(([tema]) => (
+          {salas[sala]?.temas && Object.entries(salas[sala]?.temas).map(([id,tema]) => (
               <p className="card-subtitle mb-2">
                 <b>Tema:</b> <i>{temas[tema]?.nome}</i>
                 <br/>
