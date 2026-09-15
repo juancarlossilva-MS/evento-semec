@@ -1,25 +1,23 @@
 <?php
 
-$cookiesString = "ASP.NET_SessionId=z5h5jssdnxli5pdajttpgyq1; assinadoc_cert_type=A1; COOKIECAV=9f19a6a3824b5c1f76ad6a24738b75c82c49f1eef16417e3f9f6a3f7d38011e38dcff77b5767cae86b482303f09f31c8fbdc5d08c89e0abe981f0b9fd4920b59; ecacrlmp=/EycZ1WtYLfrHRsc25kg5RlNqTAjUWRpXrhjdoQuzv8=; TS014d0691=01fef04d4ebf4046403402845891c9693c71ea73d41d0149124438dabc9745356f4ebeb9522dbd32457cedad08dded9cd648304c9a32f5e24c11429cad66440d44f8885193dbfef8e800c7c801b8f5802895e85864; TS0188162d=01fef04d4e7740e5d2c739ccfe4e8dfdf19bcb35fa1d0149124438dabc9745356f4ebeb9522dbd32457cedad08dded9cd648304c9a813fa00877849ed4144dc69b2c1f3ab6162adde296ab9d218209f08d47e5077b9867ec603c2d84bda0ea9b25cb4729f2; TSafd868f7027=082670627aab20005c56eb3f5a53ccbb3374daee9a76d68f4727a99e309b9ae1e00717b4f8893837085cb5947811300066aab95623452fe373a122522fb719205e1b579302cd599597a2297462ae519dfd248598a9529c6d353ef8040bc7dad4";
-
+$cookiesString = "Session_Gov_Br_Prod=AhxeFUNcFTnxoMUpHlzYpHjlOwvA3eSDjY1Q_IKY.scp-59b8dcf967-vtpzl;path=/;domain=.sso.acesso.gov.br;secure;HttpOnly;SameSite=None;INGRESSCOOKIE=4a57b56ea106f83a;path=/;domain=certificado.sso.acesso.gov.br;domain=sso.acesso.gov.br;HttpOnly;Secure;SameSite=None;TS0197b850=0160f9695203c45c13430639820ec25dc95ee5282f1d5ac9207445517fe604b5ab7c49b42a060059dc6a25931166a2f579f9ab17c8;Path=/;TS0185eea4=0160f9695203c45c13430639820ec25dc95ee5282f1d5ac9207445517fe604b5ab7c49b42a060059dc6a25931166a2f579f9ab17c8;path=/;domain=.sso.acesso.gov.br;TS01f34a2a=0160f9695203c45c13430639820ec25dc95ee5282f1d5ac9207445517fe604b5ab7c49b42a060059dc6a25931166a2f579f9ab17c8;path=/;domain=certificado.sso.acesso.gov.br;TSd2153684027=0877702dbcab200067d3af5284f215e3e06e78d04accddbcd9275aededc13ff9c9e7ce8fe43187d30873fff9e711300085e24e2f322559d3bc27f3afafbaa1c12c37f9df6fe7acd0338cd7f89d0a7537d07926d99fed92c386ad707da597201d;Path=/;GovbrUid_IZJEW7DlUp7GhHOg=eyJraWQiOiJkZXZpY2VDcnlwdG9ncmFwaHkiLCJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0.._0TU9gzWBROTXMgm.2YatOHODMQAahWq_iexk8cTpgjVsjo2pQI3cl5UjkWFuPKxoEr8GvPPHaoQMikVFTAvv0jGAKoXzK5wvZ2Q6TjqvWjCMZC8v0oW5ZCHdrxPmHMWvm92fdZhWkBnpc1QfqZDyU-qUwIoHqclVV2P9mC5mHOOKfcM.vavWifRwyoUuDdLSN8gh0Q;path=/;domain=.sso.acesso.gov.br;secure;HttpOnly;Max-Age=34560000;Expires=Sat, 05-Dec-2026 12:05:36 GMT;SameSite=Strict;Govbrid=f6279244-a2ba-4c20-8ce3-ee879db224b2;path=/;domain=.sso.acesso.gov.br;secure;HttpOnly;Max-Age=34560000;Expires=Sat, 05-Dec-2026 12:05:36 GMT;SameSite=Strict";
 
 $cookiePairs = explode(';', $cookiesString);
 $cookieArray = [];
 
-foreach ($cookiePairs as $pair) {
+foreach ($cookiePairs as $k => $pair) {
     $parts = explode('=', trim($pair), 2);
     $cookieArray[] = [
         'name' => trim($parts[0]),
         'value' => isset($parts[1]) ? trim($parts[1]) : '',
-        'domain' => 'camoufox.example.com',
-        'path' => '/'
+        'domain' => '.sso.acesso.gov.br',
+        'path' => '/',
+        'sameSite'=>'lax',
+        'storeId'=>'1',
+        'id' => ($k+1)
     ];
 }
 
 // converte para JSON que o Python pode ler
 echo json_encode($cookieArray, JSON_UNESCAPED_SLASHES);
 
-
-
-
-[ { "domain": ".cav.receita.fazenda.gov.br", "hostOnly": false, "httpOnly": false, "name": "assinadoc_cert_type", "path": "/", "sameSite": "None", "secure": false, "session": true, "storeId": "1", "value": "A1", "id": 1 }, { "domain": ".cav.receita.fazenda.gov.br", "hostOnly": false, "httpOnly": true, "name": "COOKIECAV", "path": "/", "sameSite": "None", "secure": true, "session": true, "storeId": "1", "value": "a490da26770d4e8d8ea9f17264094f76822fb74ed3b6e5852203fb4109bb8ff6e804f5d61ccb7680b2c7f88ce4785f6eb075edceed7f333fe3b5be88c099c95b", "id": 2 }, { "domain": ".cav.receita.fazenda.gov.br", "hostOnly": false, "httpOnly": false, "name": "TS0188162d", "path": "/", "sameSite": "None", "secure": false, "session": true, "storeId": "1", "value": "01fef04d4e2762be6e02f098edf2894468991880282d7460ca31d0f2790e3c35872367fdbb01a4b3487e34635e555e9bb88ed39c5b2773fc676fd019c060f9dc35197b3780628fc2bb10a4ae863149709fbfab30d5ecb155e49ec7af1de0d6937c8bd28c1c", "id": 3 }, { "domain": "cav.receita.fazenda.gov.br", "hostOnly": true, "httpOnly": true, "name": "ASP.NET_SessionId", "path": "/", "sameSite": "Lax", "secure": false, "session": true, "storeId": "1", "value": "lev4vapzbhivc4eemtx5a0zl", "id": 4 }, { "domain": "cav.receita.fazenda.gov.br", "hostOnly": true, "httpOnly": false, "name": "ecacrlmp", "path": "/", "sameSite": "None", "secure": false, "session": true, "storeId": "1", "value": "+RODxyLAPjyzaerKUdaForySS3lGlyP7SqWem9tf08A=", "id": 5 }, { "domain": "cav.receita.fazenda.gov.br", "hostOnly": true, "httpOnly": false, "name": "TS014d0691", "path": "/", "sameSite": "None", "secure": false, "session": true, "storeId": "1", "value": "01fef04d4ea97a07d6518f8399c128ec9d221254072d7460ca31d0f2790e3c35872367fdbb01a4b3487e34635e555e9bb88ed39c5b05f9c27c7e32b8e218d597cceba7bc18aea04fb6cec3c85426f026855160bbeb", "id": 6 }, { "domain": "cav.receita.fazenda.gov.br", "hostOnly": true, "httpOnly": false, "name": "TSafd868f7027", "path": "/", "sameSite": "None", "secure": false, "session": true, "storeId": "1", "value": "082670627aab200088b4c8fa26af70c49e85338226a07988cc2a5ee718d63bb24fda19431822289e086ddd8e39113000912a4f349a04c6a1fe6f2d41cb57df8915b497ad583756a9241590d4dc20141ef00c38f377b57a637f2eabf090c7f55a", "id": 7 } ]

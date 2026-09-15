@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { db, ref, get, update,set  } from "../../../lib/firebase";
+import { db, ref, get, update,set,push  } from "../../../lib/firebase";
 import Logo from "../../components/Logo";
 
 export default function PresencaPage() {
@@ -31,13 +31,14 @@ export default function PresencaPage() {
   },[id]);
 
   const registrarPresenca = async ()=>{
-    if (!nome || !email) { mostrarMensagem("Preencha nome e email!",3000); return; }
+    if (!nome) { mostrarMensagem("Preencha nome",3000); return; }
     try {
-      const chave = email.replace(/\W/g,'_');
-      const userRef = ref(db, `inscritos/${chave}`);
-      const userSnap = await get(userRef);
-      if (!userSnap.exists()) { mostrarMensagem("Email não cadastrado!",3000); return; }
-      await update(userRef, { [`presenca_${id}`]: true });
+      const userRef = ref(db, `inscritos`);
+      
+      const randomChildRef = push(userRef);
+      console.log(randomChildRef);
+      
+      await update(randomChildRef, { [`presenca`]: true, ['nome']: nome });
       mostrarMensagem("Presença registrada!",2000);
       gerarCertificado(nome, periodo);
     } catch(e) { console.error(e); mostrarMensagem("Erro ao registrar presença",4000); }
@@ -81,7 +82,6 @@ export default function PresencaPage() {
 
       <div className="card shadow p-4 mx-auto" style={{maxWidth:500}}>
         <div className="mb-3"><label className="form-label">Nome completo</label><input className="form-control" value={nome} onChange={(e)=>setNome(e.target.value)}/></div>
-        <div className="mb-3"><label className="form-label">Email cadastrado</label><input type="email" className="form-control" value={email} onChange={(e)=>setEmail(e.target.value)}/></div>
         <div className="d-grid"><button className="btn btn-success" onClick={registrarPresenca} disabled={gerando}>{gerando? 'Gerando certificado...':'Registrar Presença'}</button></div>
       </div>
 

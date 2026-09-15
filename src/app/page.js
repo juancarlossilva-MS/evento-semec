@@ -185,9 +185,8 @@ export default function InscricaoPage() {
             <div className="row row-cols-1 g-3 align-items-stretch">
               {Object.entries(salas).map(([id, sala]) => {
                 const total = sala.inscritos || 0;
-                const maximo = sala.maximo || 70;
                 const isSelecionado = selecionados.includes(id);
-                const isLotado = total >= maximo;
+                const isLotado = total >= 50;
                 const temasDaSala = sala.temas;
 
                 if (sala.periodo == "vespertino") return null;
@@ -249,11 +248,9 @@ export default function InscricaoPage() {
             <div className="row row-cols-1 g-3 align-items-stretch">
               {Object.entries(salas).map(([id, sala]) => {
                 const total = sala.inscritos || 0;
-                const maximo = sala.maximo || 70;
                 const isSelecionado = selecionados.includes(id);
-                const isLotado = total >= maximo;
+                const isLotado = total >= 50;
                 const temasDaSala = sala.temas;
-                
 
                 if (sala.periodo == "matutino") return null;
 

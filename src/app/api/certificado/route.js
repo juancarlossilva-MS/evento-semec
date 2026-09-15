@@ -14,17 +14,8 @@ export async function POST(req) {
       );
     }
     let pdfPath = "";
-    if (periodo == 'matutino'){
-      pdfPath = join(process.cwd(), "public", "certificado-matutino.pdf");
-    }else if (periodo == 'vespertino'){
-      pdfPath = join(process.cwd(), "public", "certificado-vespertino.pdf");
-    }else{
-      return NextResponse.json(
-        { error: "Periodo inválido." },
-        { status: 400 }
-      );
-    }
-
+    pdfPath = join(process.cwd(), "public", "certificado.pdf");
+    
     // Caminho do certificado base
     const pdfBase = await readFile(pdfPath);
 
@@ -39,7 +30,7 @@ export async function POST(req) {
 
     // Coordenadas exatas do nome (ajuste conforme o seu modelo)
     const x = 300; // posição horizontal
-    const y = 333; // posição vertical
+    const y = 337; // posição vertical
 
     // Escreve o nome no certificado
     firstPage.drawText(nome, {

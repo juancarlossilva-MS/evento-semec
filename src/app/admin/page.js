@@ -66,10 +66,8 @@ export default function AdminPage() {
   // Agrupa por sala
   const agrupadosPorSala = {};
   Object.values(inscritos).forEach((pessoa) => {
-    pessoa.cursos.forEach((curso) => {
-      if (!agrupadosPorSala[curso]) agrupadosPorSala[curso] = [];
-      agrupadosPorSala[curso].push(pessoa);
-    });
+      if (!agrupadosPorSala['sala1']) agrupadosPorSala['sala1'] = [];
+      agrupadosPorSala['sala1'].push(pessoa);
   });
 
   // Exportar Excel
@@ -79,10 +77,7 @@ export default function AdminPage() {
     Object.entries(agrupadosPorSala).forEach(([sala, pessoas]) => {
       const linhas = pessoas.map((p) => ({
         Nome: p.nome,
-        Escola: p.escola,
-        Email: p.email,
-        Curso: sala,
-        Data: new Date(p.data).toLocaleString("pt-BR"),
+       
       }));
       planilhas.push(...linhas);
     });
@@ -155,23 +150,14 @@ export default function AdminPage() {
               <thead className="table-primary">
                 <tr>
                   <th>Nome</th>
-                  <th>Escola</th>
-                  <th>Email</th>
-                  <th>Data de Inscrição</th>
+                  
                 </tr>
               </thead>
               <tbody>
                 {pessoas.map((pessoa, i) => (
                   <tr key={i}>
                     <td>{pessoa.nome}</td>
-                    <td>{pessoa.escola}</td>
-                    <td>{pessoa.email}</td>
-                    <td>
-                      {new Date(pessoa.data).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
-                    </td>
+                    
                   </tr>
                 ))}
               </tbody>
